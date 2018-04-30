@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".TimeZone">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/hawaii"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hawaii" />
+
+        <Button
+            android:id="@+id/alaska"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Alaska" />
+
+        <Button
+            android:id="@+id/pacific"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pacific" />
+
+        <Button
+            android:id="@+id/mountain"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Mountain" />
+
+        <Button
+            android:id="@+id/central"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Central" />
+
+        <Button
+            android:id="@+id/eastern"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Eastern" />
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>

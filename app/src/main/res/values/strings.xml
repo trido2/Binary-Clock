@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Binary Clock</string>
+    <string name="title_activity_select_time_zone">SelectTimeZone</string>
 </resources>

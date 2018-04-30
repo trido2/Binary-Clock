@@ -1,9 +1,12 @@
 package edu.illinois.cs.cs125.binaryclock;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -14,9 +17,12 @@ import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+
 
 /**
  * Main class for UI.
@@ -29,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static RequestQueue requestQueue;
 
+    private String timeZone;
+
     /**
      * Run when this activity comes to the foreground.
      *
@@ -38,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
         Log.d(TAG, "Opening app");
 
         // Set up queue for API requests
@@ -45,8 +54,36 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        startAPICall();
+        Bundle bundle = getIntent().getExtras();
+        String timezone = null;
+        if (bundle != null) {
+            timezone = bundle.getString("timeZone");
+            startAPICall(timezone);
+        }
+
+        Log.i(TAG, "Our app was created");
+
+        final Button selectTimeZone = findViewById(R.id.timezone);
+
+        selectTimeZone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG,"Clicked Select Time Zone");
+                Intent intent = new Intent(MainActivity.this, TimeZoneActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        final Button mode = findViewById(R.id.mode);
+        mode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "Clicked Switch Mode");
+            }
+        });
+
     }
+
 
     @Override
     protected void onPause() {
@@ -57,23 +94,26 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Make a call to the time API.
      */
-    void startAPICall() {
-        try {
+    void startAPICall(String timeZone) {
+        if (timeZone != null) {
+            try {
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,
-                    "http://api.timezonedb.com/v2/get-time-zone?key=" + BuildConfig.API_KEY + "&format=json&by=zone&zone=America/Chicago",
+                    "http://api.timezonedb.com/v2/get-time-zone?key=" + BuildConfig.API_KEY + "&format=json&by=zone&zone="
+                            + timeZone,
                     null,
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
                             try {
                                 Log.d(TAG, response.toString(2));
-                                TextView textView = findViewById(R.id.time);
+                                TextView timeView = findViewById(R.id.time);
                                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
                                 JsonParser jsonParser = new JsonParser();
                                 JsonElement jsonElement = jsonParser.parse(response.toString());
                                 String prettyJsonString = gson.toJson(jsonElement);
-                                textView.setText(prettyJsonString);
-                                textView.setVisibility(View.VISIBLE);
+                                String time = getTime(prettyJsonString);
+                                timeView.setText(time);
+                                timeView.setVisibility(View.VISIBLE);
                             } catch (JSONException ignored) {}
                         }
                     }, new Response.ErrorListener() {
@@ -83,8 +123,16 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
             requestQueue.add(jsonObjectRequest);
-        } catch (Exception e) {
-            e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+    }
+
+    public static String getTime(final String jsonString) {
+        JsonParser parser = new JsonParser();
+        JsonObject result = parser.parse(jsonString).getAsJsonObject();
+        String caption = result.get("formatted").getAsString();
+        return caption.substring(11);
     }
 }
