@@ -1,6 +1,7 @@
 package edu.illinois.cs.cs125.binaryclock;
 
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,6 +23,8 @@ import com.google.gson.JsonParser;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 /**
@@ -68,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         selectTimeZone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG,"Clicked Select Time Zone");
+                Log.d(TAG, "Clicked Select Time Zone");
                 Intent intent = new Intent(MainActivity.this, TimeZoneActivity.class);
                 startActivity(intent);
             }
@@ -97,36 +100,55 @@ public class MainActivity extends AppCompatActivity {
     void startAPICall(String timeZone) {
         if (timeZone != null) {
             try {
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,
-                    "http://api.timezonedb.com/v2/get-time-zone?key=" + BuildConfig.API_KEY + "&format=json&by=zone&zone="
-                            + timeZone,
-                    null,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            try {
-                                Log.d(TAG, response.toString(2));
-                                TextView timeView = findViewById(R.id.time);
-                                Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                                JsonParser jsonParser = new JsonParser();
-                                JsonElement jsonElement = jsonParser.parse(response.toString());
-                                String prettyJsonString = gson.toJson(jsonElement);
-                                String time = getTime(prettyJsonString);
-                                timeView.setText(time);
-                                timeView.setVisibility(View.VISIBLE);
-                            } catch (JSONException ignored) {}
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.e(TAG, error.toString());
-                }
-            });
-            requestQueue.add(jsonObjectRequest);
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,
+                        "http://api.timezonedb.com/v2/get-time-zone?key=" + BuildConfig.API_KEY + "&format=json&by=zone&zone="
+                                + timeZone,
+                        null,
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                try {
+                                    Log.d(TAG, response.toString(2));
+                                    TextView timeView = findViewById(R.id.time);
+                                    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                                    JsonParser jsonParser = new JsonParser();
+                                    JsonElement jsonElement = jsonParser.parse(response.toString());
+                                    String prettyJsonString = gson.toJson(jsonElement);
+                                    String time = getTime(prettyJsonString);
+                                    timeView.setText(time);
+                                    timeView.setVisibility(View.VISIBLE);
+                                    finishAPICall();
+                                } catch (JSONException ignored) {
+                                }
+                            }
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e(TAG, error.toString());
+                    }
+                });
+                requestQueue.add(jsonObjectRequest);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    void finishAPICall() {
+        Log.d(TAG, "Finish API Call");
+        final Handler handler = new Handler();
+        final int delay = 1000;
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "Update time");
+                TextView timeView = findViewById(R.id.time);
+                String time = timeView.getText().toString();
+                String newTime = addTime(time);
+                timeView.setText(newTime);
+                handler.postDelayed(this, delay);
+            }
+        }, delay);
     }
 
     public static String getTime(final String jsonString) {
@@ -134,5 +156,42 @@ public class MainActivity extends AppCompatActivity {
         JsonObject result = parser.parse(jsonString).getAsJsonObject();
         String caption = result.get("formatted").getAsString();
         return caption.substring(11);
+    }
+
+    public static String addTime(final String timeString) {
+        String hourString = timeString.substring(0, 2);
+        String minuteString = timeString.substring(3, 5);
+        String secondString = timeString.substring(6, 8);
+        int hour = Integer.parseInt(hourString);
+        int minute = Integer.parseInt(minuteString);
+        int second = Integer.parseInt(secondString);
+        second++;
+        if (second >= 60) {
+            second -= 60;
+            minute++;
+        }
+        if (minute >= 60) {
+            minute -= 60;
+            hour++;
+        }
+        if (hour >= 24) {
+            hour -= 24;
+        }
+        if (hour < 10) {
+            hourString = "0" + Integer.toString(hour);
+        } else {
+            hourString = Integer.toString(hour);
+        }
+        if (minute < 10) {
+            minuteString = "0" + Integer.toString(minute);
+        } else {
+            minuteString = Integer.toString(minute);
+        }
+        if (second < 10) {
+            secondString = "0" + Integer.toString(second);
+        } else {
+            secondString = Integer.toString(second);
+        }
+        return hourString + ":" + minuteString + ":" + secondString;
     }
 }
