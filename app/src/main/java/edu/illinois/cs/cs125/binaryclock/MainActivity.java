@@ -110,13 +110,16 @@ public class MainActivity extends AppCompatActivity {
                                 try {
                                     Log.d(TAG, response.toString(2));
                                     TextView timeView = findViewById(R.id.time);
+                                    TextView binaryTimeView = findViewById(R.id.binaryTime);
                                     Gson gson = new GsonBuilder().setPrettyPrinting().create();
                                     JsonParser jsonParser = new JsonParser();
                                     JsonElement jsonElement = jsonParser.parse(response.toString());
                                     String prettyJsonString = gson.toJson(jsonElement);
                                     String time = getTime(prettyJsonString);
+                                    String binaryTime = convertToBinaryTime(time);
                                     timeView.setText(time);
-                                    timeView.setVisibility(View.VISIBLE);
+                                    binaryTimeView.setText(binaryTime);
+                                    binaryTimeView.setVisibility(View.VISIBLE);
                                     finishAPICall();
                                 } catch (JSONException ignored) {
                                 }
@@ -143,9 +146,12 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 Log.d(TAG, "Update time");
                 TextView timeView = findViewById(R.id.time);
+                TextView binaryTimeView = findViewById(R.id.binaryTime);
                 String time = timeView.getText().toString();
                 String newTime = addTime(time);
                 timeView.setText(newTime);
+                String binaryTime = convertToBinaryTime(newTime);
+                binaryTimeView.setText(binaryTime);
                 handler.postDelayed(this, delay);
             }
         }, delay);
@@ -193,5 +199,27 @@ public class MainActivity extends AppCompatActivity {
             secondString = Integer.toString(second);
         }
         return hourString + ":" + minuteString + ":" + secondString;
+    }
+
+    public static String convertToBinaryTime(String timeString) {
+        String hourString = timeString.substring(0, 2);
+        String minuteString = timeString.substring(3, 5);
+        String secondString = timeString.substring(6, 8);
+        int hour = Integer.parseInt(hourString);
+        int minute = Integer.parseInt(minuteString);
+        int second = Integer.parseInt(secondString);
+        String binaryHour = Integer.toBinaryString(hour);
+        while (binaryHour.length() < 5) {
+            binaryHour = "0" + binaryHour;
+        }
+        String binaryMinute = Integer.toBinaryString(minute);
+        while (binaryMinute.length() < 6) {
+            binaryMinute = "0" + binaryMinute;
+        }
+        String binarySecond = Integer.toBinaryString(second);
+        while (binarySecond.length() < 6) {
+            binarySecond = "0" + binarySecond;
+        }
+        return binaryHour + ":" + binaryMinute + ":" + binarySecond;
     }
 }
