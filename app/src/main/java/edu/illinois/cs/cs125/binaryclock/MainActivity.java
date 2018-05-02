@@ -25,7 +25,7 @@ import org.json.JSONObject;
 
 import java.util.Timer;
 import java.util.TimerTask;
-
+import edu.illinois.cs.cs125.binaryclock.lib.BinaryClock;
 
 /**
  * Main class for UI.
@@ -115,8 +115,8 @@ public class MainActivity extends AppCompatActivity {
                                     JsonParser jsonParser = new JsonParser();
                                     JsonElement jsonElement = jsonParser.parse(response.toString());
                                     String prettyJsonString = gson.toJson(jsonElement);
-                                    String time = getTime(prettyJsonString);
-                                    String binaryTime = convertToBinaryTime(time);
+                                    String time = BinaryClock.getTime(prettyJsonString);
+                                    String binaryTime = BinaryClock.convertToBinaryTime(time);
                                     timeView.setText(time);
                                     binaryTimeView.setText(binaryTime);
                                     binaryTimeView.setVisibility(View.VISIBLE);
@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void finishAPICall() {
-        Log.d(TAG, "Finish API Call");
+        Log.d(TAG, "Finished API Call");
         final Handler handler = new Handler();
         final int delay = 1000;
         handler.postDelayed(new Runnable() {
@@ -148,78 +148,12 @@ public class MainActivity extends AppCompatActivity {
                 TextView timeView = findViewById(R.id.time);
                 TextView binaryTimeView = findViewById(R.id.binaryTime);
                 String time = timeView.getText().toString();
-                String newTime = addTime(time);
+                String newTime = BinaryClock.addTime(time);
                 timeView.setText(newTime);
-                String binaryTime = convertToBinaryTime(newTime);
+                String binaryTime = BinaryClock.convertToBinaryTime(newTime);
                 binaryTimeView.setText(binaryTime);
                 handler.postDelayed(this, delay);
             }
         }, delay);
-    }
-
-    public static String getTime(final String jsonString) {
-        JsonParser parser = new JsonParser();
-        JsonObject result = parser.parse(jsonString).getAsJsonObject();
-        String caption = result.get("formatted").getAsString();
-        return caption.substring(11);
-    }
-
-    public static String addTime(final String timeString) {
-        String hourString = timeString.substring(0, 2);
-        String minuteString = timeString.substring(3, 5);
-        String secondString = timeString.substring(6, 8);
-        int hour = Integer.parseInt(hourString);
-        int minute = Integer.parseInt(minuteString);
-        int second = Integer.parseInt(secondString);
-        second++;
-        if (second >= 60) {
-            second -= 60;
-            minute++;
-        }
-        if (minute >= 60) {
-            minute -= 60;
-            hour++;
-        }
-        if (hour >= 24) {
-            hour -= 24;
-        }
-        if (hour < 10) {
-            hourString = "0" + Integer.toString(hour);
-        } else {
-            hourString = Integer.toString(hour);
-        }
-        if (minute < 10) {
-            minuteString = "0" + Integer.toString(minute);
-        } else {
-            minuteString = Integer.toString(minute);
-        }
-        if (second < 10) {
-            secondString = "0" + Integer.toString(second);
-        } else {
-            secondString = Integer.toString(second);
-        }
-        return hourString + ":" + minuteString + ":" + secondString;
-    }
-
-    public static String convertToBinaryTime(String timeString) {
-        String hourString = timeString.substring(0, 2);
-        String minuteString = timeString.substring(3, 5);
-        String secondString = timeString.substring(6, 8);
-        int hour = Integer.parseInt(hourString);
-        int minute = Integer.parseInt(minuteString);
-        int second = Integer.parseInt(secondString);
-        String binaryHour = Integer.toBinaryString(hour);
-        while (binaryHour.length() < 5) {
-            binaryHour = "0" + binaryHour;
-        }
-        String binaryMinute = Integer.toBinaryString(minute);
-        while (binaryMinute.length() < 6) {
-            binaryMinute = "0" + binaryMinute;
-        }
-        String binarySecond = Integer.toBinaryString(second);
-        while (binarySecond.length() < 6) {
-            binarySecond = "0" + binarySecond;
-        }
-        return binaryHour + ":" + binaryMinute + ":" + binarySecond;
     }
 }

@@ -18,12 +18,6 @@ public class TimeZoneActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final MyTime hawaiiTime = new MyTime("hawaii", this);
-        final MyTime alaskaTime = new MyTime("alaska", this);
-        final MyTime pacificTime = new MyTime("pacific", this);
-        final MyTime mountainTime = new MyTime("mountain", this);
-        final MyTime centralTime = new MyTime("central", this);
-        final MyTime easternTime = new MyTime("eastern", this);
         Log.d(TAG, "Inside Time Zone");
         setContentView(R.layout.activity_time_zone_activity);
 
