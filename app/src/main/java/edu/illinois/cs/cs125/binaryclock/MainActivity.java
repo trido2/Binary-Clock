@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -18,13 +17,10 @@ import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Timer;
-import java.util.TimerTask;
 import edu.illinois.cs.cs125.binaryclock.lib.BinaryClock;
 
 /**
@@ -37,8 +33,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "BinaryClock:Main";
 
     private static RequestQueue requestQueue;
-
-    private String timeZone;
 
     /**
      * Run when this activity comes to the foreground.
@@ -58,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Bundle bundle = getIntent().getExtras();
-        String timezone = null;
+        String timezone;
         if (bundle != null) {
             timezone = bundle.getString("timeZone");
             startAPICall(timezone);
