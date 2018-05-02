@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -43,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         Log.d(TAG, "Opening app");
 
         // Set up queue for API requests
@@ -76,9 +76,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "Clicked Switch Mode");
+                Intent intent2 = new Intent(MainActivity.this, DotMode.class);
+                startActivity(intent2);
             }
         });
-
     }
 
 
